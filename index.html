@@ -2,32 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Personal AI Lab — Control Panel</title>
-  <meta name="description" content="Personal AI Lab launcher and control panel." />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Personal AI Lab — Cockpit</title>
+  <meta name="description" content="Personal AI Lab cockpit: agents, prompts, runs, deploy." />
   <style>
     :root{
-      --bg: #050913;
-      --panel: rgba(255,255,255,.06);
-      --panel2: rgba(255,255,255,.10);
-      --border: rgba(255,255,255,.10);
-      --text: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.65);
-      --accent: #EB5815; /* signal orange */
-      --ok: #22c55e;
-      --warn: #f59e0b;
-      --bad: #ef4444;
-      --radius: 18px;
-      --shadow: 0 18px 60px rgba(0,0,0,.45);
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --bg:#050913;
+      --panel:rgba(255,255,255,.06);
+      --panel2:rgba(255,255,255,.10);
+      --border:rgba(255,255,255,.10);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.62);
+      --accent:#EB5815; /* Signal Orange */
+      --ok:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --radius:18px;
+      --shadow:0 18px 60px rgba(0,0,0,.45);
+      --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,"Apple Color Emoji","Segoe UI Emoji";
     }
-
     *{box-sizing:border-box}
     body{
       margin:0;
-      font-family: var(--sans);
-      color: var(--text);
+      font-family:var(--sans);
+      color:var(--text);
       background:
         radial-gradient(1200px 700px at 15% 10%, rgba(235,88,21,.18), transparent 45%),
         radial-gradient(900px 600px at 85% 20%, rgba(56,189,248,.10), transparent 55%),
@@ -35,6 +34,1525 @@
         var(--bg);
       min-height:100vh;
     }
+    .wrap{max-width:1200px;margin:0 auto;padding:22px 16px 44px;}
+    header{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .brand{display:flex;gap:14px;align-items:center;min-width:280px}
+    .logo{
+      width:44px;height:44px;border-radius:14px;
+      background:linear-gradient(135deg, rgba(235,88,21,.95), rgba(235,88,21,.12));
+      box-shadow:0 18px 45px rgba(235,88,21,.20);
+      border:1px solid rgba(255,255,255,.12);
+    }
+    h1{font-size:18px;margin:0;letter-spacing:.2px}
+    .sub{margin:2px 0 0;color:var(--muted);font-size:13px}
+    .top-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .btn{
+      appearance:none;border:1px solid var(--border);
+      background:rgba(255,255,255,.06);color:var(--text);
+      border-radius:14px;padding:10px 12px;font-size:13px;
+      cursor:pointer;transition:transform .08s ease, background .15s ease, border .15s ease;
+      display:inline-flex;gap:8px;align-items:center;
+      box-shadow:0 8px 26px rgba(0,0,0,.25);
+      user-select:none;
+    }
+    .btn:hover{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.18)}
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{background:rgba(235,88,21,.18);border-color:rgba(235,88,21,.35)}
+    .btn.primary:hover{background:rgba(235,88,21,.24)}
+    .btn.danger{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.25)}
+    .btn.ghost{background:transparent}
+    .btn.small{padding:8px 10px;border-radius:12px;font-size:12px}
+    .mono{font-family:var(--mono)}
+    .tabs{
+      margin-top:14px;
+      display:flex;gap:10px;flex-wrap:wrap;
+      padding:10px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      box-shadow:0 10px 35px rgba(0,0,0,.25);
+    }
+    .tab{
+      padding:10px 12px;border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.05);
+      color:rgba(255,255,255,.80);
+      cursor:pointer;
+      display:flex;gap:8px;align-items:center;
+      transition:background .15s ease, border .15s ease, transform .08s ease;
+      user-select:none;
+    }
+    .tab:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16)}
+    .tab:active{transform:translateY(1px)}
+    .tab.active{
+      background:rgba(235,88,21,.16);
+      border-color:rgba(235,88,21,.35);
+      color:rgba(255,255,255,.92);
+    }
+
+    .grid{display:grid;grid-template-columns: 1.2fr .8fr;gap:14px;margin-top:14px}
+    @media (max-width: 980px){.grid{grid-template-columns:1fr}}
+
+    .card{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .card-h{
+      padding:14px 14px 10px;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      background:linear-gradient(180deg, rgba(255,255,255,.08), transparent);
+    }
+    .title{font-size:13px;letter-spacing:.3px;color:rgba(255,255,255,.86);display:flex;align-items:center;gap:10px}
+    .pill{
+      font-size:12px;padding:5px 9px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      color:rgba(255,255,255,.75);
+      white-space:nowrap;
+    }
+    .card-b{padding:14px}
+    .note{font-size:12px;color:rgba(255,255,255,.68);line-height:1.5;margin:0}
+
+    label{display:block;font-size:12px;color:rgba(255,255,255,.72);margin:12px 0 6px}
+    input, textarea, select{
+      width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.25);color:var(--text);
+      padding:10px 12px;font-size:13px;outline:none;
+    }
+    textarea{min-height:110px;resize:vertical;font-family:var(--mono);font-size:12px}
+    input::placeholder, textarea::placeholder{color:rgba(255,255,255,.42)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+
+    .kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    @media (max-width: 680px){.kpi{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    .k{
+      padding:12px;border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.05);
+    }
+    .k .n{font-size:18px;margin:0 0 4px}
+    .k .l{font-size:12px;color:var(--muted);margin:0}
+
+    .list{display:flex;flex-direction:column;gap:10px}
+    .item{
+      padding:12px;border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.05);
+      display:flex;gap:12px;align-items:flex-start;justify-content:space-between;
+    }
+    .item .left{display:flex;gap:10px;align-items:flex-start}
+    .ico{
+      width:34px;height:34px;border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      display:grid;place-items:center;
+      flex:0 0 auto;margin-top:1px;
+    }
+    .item h3{margin:0;font-size:13px}
+    .item p{margin:4px 0 0;font-size:12px;color:var(--muted);line-height:1.35}
+    .item .meta{margin-top:6px;font-size:12px;color:rgba(255,255,255,.55)}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+    .badge{
+      font-size:11px;padding:4px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.18);color:rgba(255,255,255,.70)
+    }
+    .badge.ok{border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.10)}
+    .badge.warn{border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.10)}
+    .badge.bad{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.10)}
+
+    a.link{
+      color:inherit;text-decoration:none;
+      display:flex;gap:10px;align-items:flex-start;
+    }
+    a.link:hover{opacity:.95}
+
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width: 980px){.split{grid-template-columns:1fr}}
+    .hr{height:1px;background:rgba(255,255,255,.06);margin:12px 0}
+    .codebox{
+      border-radius:16px;border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.28);
+      padding:12px;
+      font-family:var(--mono);
+      font-size:12px;
+      color:rgba(255,255,255,.85);
+      white-space:pre-wrap;
+      overflow:auto;
+      max-height:260px;
+    }
+
+    .toast{
+      position:fixed;right:16px;bottom:16px;
+      padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.55);backdrop-filter: blur(10px);
+      color:rgba(255,255,255,.88);font-size:13px;
+      box-shadow:0 18px 55px rgba(0,0,0,.5);
+      opacity:0;transform:translateY(10px);
+      transition:opacity .18s ease, transform .18s ease;
+      pointer-events:none;z-index:9999;
+    }
+    .toast.show{opacity:1;transform:translateY(0)}
+    footer{
+      margin-top:14px;color:rgba(255,255,255,.45);font-size:12px;
+      display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    }
+    .sep{opacity:.35}
+
+    .hint{
+      font-size:12px;color:rgba(255,255,255,.60);
+      border-left:2px solid rgba(235,88,21,.35);
+      padding-left:10px;margin:10px 0 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Personal AI Lab — Cockpit</h1>
+          <p class="sub">Agents • Prompts • Runs • Deploy — single-file, local-only, endpoint-ready.</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn primary" id="openPrimary">🚀 Open Primary</button>
+        <button class="btn" id="copyQuick">📋 Copy Quick Prompt</button>
+        <button class="btn" id="exportBtn">⬇️ Export</button>
+        <button class="btn danger" id="resetBtn">♻️ Reset</button>
+      </div>
+    </header>
+
+    <nav class="tabs" id="tabs"></nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="grid">
+      <!-- LEFT MAIN -->
+      <section class="card" id="mainCard">
+        <div class="card-h">
+          <div class="title" id="mainTitle">—</div>
+          <div class="row" style="margin:0;">
+            <span class="pill mono" id="today"></span>
+            <span class="pill" id="statusPill">Local</span>
+          </div>
+        </div>
+        <div class="card-b" id="mainBody"></div>
+      </section>
+
+      <!-- RIGHT SIDEBAR -->
+      <aside class="card">
+        <div class="card-h">
+          <div class="title">⚙️ Quick Settings <span class="pill">saved locally</span></div>
+          <span class="pill mono" id="lastSaved">—</span>
+        </div>
+        <div class="card-b">
+          <div class="kpi">
+            <div class="k">
+              <p class="n" id="kAgents">0</p>
+              <p class="l">Agents</p>
+            </div>
+            <div class="k">
+              <p class="n" id="kPrompts">0</p>
+              <p class="l">Prompts</p>
+            </div>
+            <div class="k">
+              <p class="n" id="kRuns">0</p>
+              <p class="l">Runs</p>
+            </div>
+            <div class="k">
+              <p class="n" id="kMode">LAB</p>
+              <p class="l">Mode</p>
+            </div>
+          </div>
+
+          <label for="primaryUrl">Primary URL</label>
+          <input id="primaryUrl" placeholder="https://github.com/saifsoub/future-tax-innovator" />
+
+          <label for="labMode">Lab Mode</label>
+          <select id="labMode">
+            <option value="LAB">LAB</option>
+            <option value="BUILD">BUILD</option>
+            <option value="RESEARCH">RESEARCH</option>
+            <option value="DEPLOY">DEPLOY</option>
+          </select>
+
+          <label for="quickPrompt">Quick Prompt (one-click copy)</label>
+          <textarea id="quickPrompt" placeholder="Your default instruction set..."></textarea>
+
+          <div class="row">
+            <button class="btn primary" id="saveBtn">💾 Save</button>
+            <button class="btn" id="importBtn">⬆️ Import</button>
+            <input id="importFile" type="file" accept="application/json" style="display:none;" />
+          </div>
+
+          <p class="hint">
+            🔒 Local-only storage. If you add API keys here, treat them as “convenience only” (not secure). For real security, use server-side secrets (Vercel env vars).
+          </p>
+        </div>
+      </aside>
+    </div>
+
+    <footer>
+      <div>Built for your Personal AI Lab 🧠⚡</div>
+      <div><span class="sep">•</span> Single HTML file <span class="sep">•</span> No backend required <span class="sep">•</span> Endpoint-ready</div>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /***********************
+     * STORAGE + DEFAULTS
+     ***********************/
+    const STORAGE_KEY = "personal_ai_lab_cockpit_v1";
+
+    const defaults = {
+      primaryUrl: "https://github.com/saifsoub/future-tax-innovator",
+      mode: "LAB",
+      quickPrompt:
+`You are my Personal AI Lab Orchestrator.
+Rules:
+- Be fast, structured, and execution-ready.
+- Provide direct actions, not theory.
+- If something is missing, ask only ONE question.
+Output format:
+- Next steps
+- Command-ready snippets
+- Checklists`,
+      links: [
+        { title: "GitHub Repo", url: "https://github.com/saifsoub/future-tax-innovator", desc: "Main lab repository.", icon: "🐙" },
+        { title: "Copilot Agents Folder", url: "https://github.com/saifsoub/future-tax-innovator/tree/main/.github/agents", desc: "Agent configs in repo.", icon: "🤖" },
+        { title: "GitHub Pages (if enabled)", url: "https://saifsoub.github.io/future-tax-innovator/", desc: "Public cockpit link.", icon: "🌐" },
+        { title: "Vercel Dashboard", url: "https://vercel.com/dashboard", desc: "Deploy, env vars, logs.", icon: "▲" }
+      ],
+      agents: [
+        {
+          id: cryptoId(),
+          name: "Builder Agent",
+          icon: "🛠️",
+          desc: "Generates architecture, scaffolds modules, writes code patches.",
+          enabled: true,
+          endpoint: "", // optional: https://your-api/run
+          defaultPromptId: "",
+          schema: {
+            inputHint: "Describe what you want built (feature, folder, code change)…",
+            outputHint: "Patch plan + code blocks."
+          }
+        },
+        {
+          id: cryptoId(),
+          name: "Research Agent",
+          icon: "🔎",
+          desc: "Collects requirements, compares options, creates decision matrices.",
+          enabled: true,
+          endpoint: "",
+          defaultPromptId: "",
+          schema: {
+            inputHint: "What are we researching? Include constraints + target output.",
+            outputHint: "Structured findings + recommendations."
+          }
+        },
+        {
+          id: cryptoId(),
+          name: "Ops / Deploy Agent",
+          icon: "🚀",
+          desc: "Preps releases, checklists, env vars, deploy steps.",
+          enabled: true,
+          endpoint: "",
+          defaultPromptId: "",
+          schema: {
+            inputHint: "Deploy target (Pages/Vercel) + repo + desired domain…",
+            outputHint: "Step-by-step deploy plan + commands."
+          }
+        }
+      ],
+      prompts: [
+        {
+          id: cryptoId(),
+          title: "Orchestrator Default",
+          tags: ["core","orchestrator"],
+          content:
+`You are my Personal AI Lab Orchestrator.
+Always respond as:
+1) What I should do next (max 7 bullets)
+2) The exact commands/snippets
+3) Risks & mitigations (short)
+No fluff.`
+        },
+        {
+          id: cryptoId(),
+          title: "Code Patch Mode",
+          tags: ["dev","patch"],
+          content:
+`Act as a senior engineer.
+Return:
+- Plan
+- File tree changes
+- Code blocks per file (with filename headers)
+- Test steps`
+        },
+        {
+          id: cryptoId(),
+          title: "Decision Matrix Mode",
+          tags: ["strategy","matrix"],
+          content:
+`Build an objective scoring matrix:
+Criteria (weighted), scoring (0-5), rationale, recommendation.
+Keep it crisp and executive.`
+        }
+      ],
+      runs: [
+        // { id, time, agentId, agentName, status, durationMs, input, output, endpointUsed }
+      ],
+      deploy: {
+        vercelProjectUrl: "https://vercel.com/dashboard",
+        productionUrl: "",
+        env: [
+          // { key, value, note }
+          { key: "OPENAI_API_KEY", value: "", note: "If using OpenAI (store on Vercel ideally)." },
+          { key: "SUPABASE_URL", value: "", note: "Your Supabase instance URL." },
+          { key: "SUPABASE_ANON_KEY", value: "", note: "Public anon key (still keep on server where possible)." }
+        ]
+      },
+      lastSaved: null
+    };
+
+    function cryptoId(){
+      // safe unique-ish id
+      if (window.crypto && crypto.getRandomValues){
+        const a = new Uint32Array(2);
+        crypto.getRandomValues(a);
+        return a[0].toString(16) + a[1].toString(16);
+      }
+      return Math.random().toString(16).slice(2) + Date.now().toString(16);
+    }
+
+    function structuredCloneSafe(obj){
+      try { return structuredClone(obj); } catch { return JSON.parse(JSON.stringify(obj)); }
+    }
+
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return structuredCloneSafe(defaults);
+        const parsed = JSON.parse(raw);
+        // merge shallow + ensure arrays exist
+        const s = { ...structuredCloneSafe(defaults), ...parsed };
+        s.links = Array.isArray(s.links) ? s.links : structuredCloneSafe(defaults.links);
+        s.agents = Array.isArray(s.agents) ? s.agents : structuredCloneSafe(defaults.agents);
+        s.prompts = Array.isArray(s.prompts) ? s.prompts : structuredCloneSafe(defaults.prompts);
+        s.runs = Array.isArray(s.runs) ? s.runs : [];
+        s.deploy = { ...structuredCloneSafe(defaults.deploy), ...(s.deploy || {}) };
+        s.deploy.env = Array.isArray(s.deploy.env) ? s.deploy.env : structuredCloneSafe(defaults.deploy.env);
+        return s;
+      }catch{
+        return structuredCloneSafe(defaults);
+      }
+    }
+
+    function saveState(next){
+      next.lastSaved = new Date().toISOString();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      return next;
+    }
+
+    function toast(msg){
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      setTimeout(()=> el.classList.remove("show"), 1600);
+    }
+
+    function safeOpen(url){
+      if(!url) return;
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+
+    function escapeHtml(str){
+      return String(str ?? "")
+        .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    }
+
+    function fmtTime(iso){
+      try{
+        const d = new Date(iso);
+        return d.toLocaleString(undefined, { month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit" });
+      }catch{ return "—"; }
+    }
+
+    function msToHuman(ms){
+      if(ms == null) return "—";
+      const s = Math.round(ms/100)/10;
+      return s < 60 ? `${s}s` : `${Math.round(s/60)}m`;
+    }
+
+    /***********************
+     * UI STATE
+     ***********************/
+    let state = loadState();
+    let activeTab = "agents";
+
+    const TAB_DEFS = [
+      { id:"agents", label:"Agents", icon:"🤖" },
+      { id:"prompts", label:"Prompts", icon:"🧾" },
+      { id:"runs", label:"Runs & Logs", icon:"📡" },
+      { id:"deploy", label:"Deploy", icon:"🚀" },
+      { id:"links", label:"Links", icon:"🔗" }
+    ];
+
+    /***********************
+     * DOM REFERENCES
+     ***********************/
+    const tabsEl = document.getElementById("tabs");
+    const mainTitleEl = document.getElementById("mainTitle");
+    const mainBodyEl = document.getElementById("mainBody");
+    const todayEl = document.getElementById("today");
+    const statusPillEl = document.getElementById("statusPill");
+    const lastSavedEl = document.getElementById("lastSaved");
+
+    const kAgentsEl = document.getElementById("kAgents");
+    const kPromptsEl = document.getElementById("kPrompts");
+    const kRunsEl = document.getElementById("kRuns");
+    const kModeEl = document.getElementById("kMode");
+
+    const primaryUrlEl = document.getElementById("primaryUrl");
+    const labModeEl = document.getElementById("labMode");
+    const quickPromptEl = document.getElementById("quickPrompt");
+
+    /***********************
+     * TOP ACTIONS
+     ***********************/
+    document.getElementById("openPrimary").addEventListener("click", ()=> safeOpen(state.primaryUrl));
+    document.getElementById("copyQuick").addEventListener("click", async ()=>{
+      try{
+        await navigator.clipboard.writeText(quickPromptEl.value || "");
+        toast("Quick prompt copied ✅");
+      }catch{
+        toast("Clipboard blocked (needs HTTPS) ⚠️");
+      }
+    });
+
+    document.getElementById("exportBtn").addEventListener("click", ()=>{
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type:"application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "personal-ai-lab-cockpit.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast("Exported ⬇️");
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", ()=>{
+      if(!confirm("Reset to defaults? This clears your saved local config.")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      state = loadState();
+      activeTab = "agents";
+      renderAll();
+      toast("Reset done ♻️");
+    });
+
+    document.getElementById("saveBtn").addEventListener("click", ()=>{
+      state.primaryUrl = primaryUrlEl.value.trim();
+      state.mode = labModeEl.value;
+      state.quickPrompt = quickPromptEl.value;
+      state = saveState(state);
+      renderAll();
+      toast("Saved ✅");
+    });
+
+    document.getElementById("importBtn").addEventListener("click", ()=>{
+      document.getElementById("importFile").click();
+    });
+
+    document.getElementById("importFile").addEventListener("change", async (e)=>{
+      const file = e.target.files && e.target.files[0];
+      if(!file) return;
+      try{
+        const txt = await file.text();
+        const incoming = JSON.parse(txt);
+        // merge with defaults to avoid missing fields
+        const merged = { ...structuredCloneSafe(defaults), ...incoming };
+        state = saveState(merged);
+        activeTab = "agents";
+        renderAll();
+        toast("Imported ⬆️");
+      }catch{
+        toast("Import failed ⚠️");
+      }finally{
+        e.target.value = "";
+      }
+    });
+
+    /***********************
+     * RENDER HELPERS
+     ***********************/
+    function renderChrome(){
+      const d = new Date();
+      todayEl.textContent = d.toLocaleString(undefined, { weekday:"short", year:"numeric", month:"short", day:"numeric" });
+
+      primaryUrlEl.value = state.primaryUrl || "";
+      labModeEl.value = state.mode || "LAB";
+      quickPromptEl.value = state.quickPrompt || "";
+
+      kAgentsEl.textContent = (state.agents || []).length;
+      kPromptsEl.textContent = (state.prompts || []).length;
+      kRunsEl.textContent = (state.runs || []).length;
+      kModeEl.textContent = state.mode || "LAB";
+
+      lastSavedEl.textContent = state.lastSaved ? fmtTime(state.lastSaved) : "—";
+      statusPillEl.textContent = "Local";
+    }
+
+    function renderTabs(){
+      tabsEl.innerHTML = "";
+      TAB_DEFS.forEach(t=>{
+        const b = document.createElement("button");
+        b.className = "tab" + (t.id === activeTab ? " active" : "");
+        b.innerHTML = `<span aria-hidden="true">${t.icon}</span><span>${t.label}</span>`;
+        b.addEventListener("click", ()=>{
+          activeTab = t.id;
+          renderMain();
+          renderTabs();
+        });
+        tabsEl.appendChild(b);
+      });
+    }
+
+    function renderMain(){
+      if(activeTab === "agents") return renderAgents();
+      if(activeTab === "prompts") return renderPrompts();
+      if(activeTab === "runs") return renderRuns();
+      if(activeTab === "deploy") return renderDeploy();
+      if(activeTab === "links") return renderLinks();
+    }
+
+    /***********************
+     * TAB: AGENTS
+     ***********************/
+    function renderAgents(){
+      mainTitleEl.innerHTML = `🤖 Agents <span class="pill">run + endpoint-ready</span>`;
+      const agents = state.agents || [];
+      const prompts = state.prompts || [];
+
+      const promptOptions = (selectedId) => {
+        const opts = [`<option value="">(No default prompt)</option>`];
+        prompts.forEach(p=>{
+          const sel = p.id === selectedId ? "selected" : "";
+          opts.push(`<option value="${escapeHtml(p.id)}" ${sel}>${escapeHtml(p.title)}</option>`);
+        });
+        return opts.join("");
+      };
+
+      mainBodyEl.innerHTML = `
+        <div class="row" style="justify-content:space-between;align-items:flex-start;">
+          <div>
+            <p class="note">
+              Click <b>Run</b> to create a run record + output preview.  
+              If you add an <b>Endpoint</b>, you can wire this to a real API later (FastAPI, Next.js API, Supabase edge function, etc.).
+            </p>
+            <p class="hint">Pro move: keep endpoints empty now; build your backend later without changing the UI.</p>
+          </div>
+          <div class="actions">
+            <button class="btn primary small" id="addAgentBtn">➕ Add Agent</button>
+            <button class="btn small" id="enableAllAgentsBtn">✅ Enable All</button>
+            <button class="btn small" id="disableAllAgentsBtn">🛑 Disable All</button>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="list" id="agentsList"></div>
+      `;
+
+      const list = document.getElementById("agentsList");
+      list.innerHTML = "";
+
+      agents.forEach((a)=>{
+        const enabledBadge = a.enabled ? `<span class="badge ok">Enabled</span>` : `<span class="badge bad">Disabled</span>`;
+        const endpointBadge = a.endpoint ? `<span class="badge warn">Endpoint set</span>` : `<span class="badge">No endpoint</span>`;
+
+        const el = document.createElement("div");
+        el.className = "item";
+        el.innerHTML = `
+          <div class="left">
+            <div class="ico" aria-hidden="true">${escapeHtml(a.icon || "🤖")}</div>
+            <div>
+              <h3>${escapeHtml(a.name || "Unnamed Agent")}</h3>
+              <p>${escapeHtml(a.desc || "")}</p>
+              <div class="meta">
+                ${enabledBadge} ${endpointBadge}
+              </div>
+
+              <label>Endpoint (optional)</label>
+              <input data-agent="${escapeHtml(a.id)}" data-field="endpoint" placeholder="https://your-api/run" value="${escapeHtml(a.endpoint || "")}" />
+
+              <div class="split">
+                <div>
+                  <label>Default Prompt</label>
+                  <select data-agent="${escapeHtml(a.id)}" data-field="defaultPromptId">
+                    ${promptOptions(a.defaultPromptId || "")}
+                  </select>
+                </div>
+                <div>
+                  <label>Enabled</label>
+                  <select data-agent="${escapeHtml(a.id)}" data-field="enabled">
+                    <option value="true" ${a.enabled ? "selected" : ""}>true</option>
+                    <option value="false" ${!a.enabled ? "selected" : ""}>false</option>
+                  </select>
+                </div>
+              </div>
+
+              <label>Run Input</label>
+              <textarea data-agent="${escapeHtml(a.id)}" data-field="runInput" placeholder="${escapeHtml(a.schema?.inputHint || "Describe what you want...")}"></textarea>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn primary small" data-action="run" data-agent="${escapeHtml(a.id)}">▶ Run</button>
+            <button class="btn small" data-action="copyAgent" data-agent="${escapeHtml(a.id)}">📋 Copy Agent JSON</button>
+            <button class="btn small" data-action="dup" data-agent="${escapeHtml(a.id)}">⎘ Duplicate</button>
+            <button class="btn danger small" data-action="del" data-agent="${escapeHtml(a.id)}">🗑️ Delete</button>
+          </div>
+        `;
+        list.appendChild(el);
+      });
+
+      // wire inputs
+      mainBodyEl.querySelectorAll("[data-field]").forEach(node=>{
+        node.addEventListener("change", ()=>{
+          const id = node.getAttribute("data-agent");
+          const field = node.getAttribute("data-field");
+          const agent = state.agents.find(x=>x.id===id);
+          if(!agent) return;
+
+          if(field === "enabled"){
+            agent.enabled = (node.value === "true");
+          } else if(field === "defaultPromptId"){
+            agent.defaultPromptId = node.value;
+          } else if(field === "endpoint"){
+            agent.endpoint = node.value.trim();
+          } else if(field === "runInput"){
+            // handled during run (we read textarea)
+          }
+          state = saveState(state);
+          renderChrome();
+          toast("Agent updated ✅");
+        });
+      });
+
+      // buttons
+      document.getElementById("addAgentBtn").addEventListener("click", ()=>{
+        const name = prompt("Agent name?");
+        if(!name) return;
+        const icon = prompt("Icon emoji?", "🤖") || "🤖";
+        const desc = prompt("Short description?", "What does it do?") || "";
+        state.agents.unshift({
+          id: cryptoId(),
+          name, icon, desc,
+          enabled: true,
+          endpoint: "",
+          defaultPromptId: "",
+          schema: { inputHint:"What should I do?", outputHint:"Structured output." }
+        });
+        state = saveState(state);
+        renderAll();
+        toast("Agent added ➕");
+      });
+
+      document.getElementById("enableAllAgentsBtn").addEventListener("click", ()=>{
+        state.agents.forEach(a=>a.enabled=true);
+        state = saveState(state);
+        renderAll();
+        toast("All enabled ✅");
+      });
+
+      document.getElementById("disableAllAgentsBtn").addEventListener("click", ()=>{
+        state.agents.forEach(a=>a.enabled=false);
+        state = saveState(state);
+        renderAll();
+        toast("All disabled 🛑");
+      });
+
+      // item actions
+      mainBodyEl.querySelectorAll("[data-action]").forEach(btn=>{
+        btn.addEventListener("click", async ()=>{
+          const action = btn.getAttribute("data-action");
+          const id = btn.getAttribute("data-agent");
+          const agent = state.agents.find(x=>x.id===id);
+          if(!agent) return;
+
+          if(action === "del"){
+            if(!confirm(`Delete agent "${agent.name}"?`)) return;
+            state.agents = state.agents.filter(x=>x.id!==id);
+            state = saveState(state);
+            renderAll();
+            toast("Agent deleted 🗑️");
+            return;
+          }
+
+          if(action === "dup"){
+            const copy = structuredCloneSafe(agent);
+            copy.id = cryptoId();
+            copy.name = copy.name + " (copy)";
+            state.agents.unshift(copy);
+            state = saveState(state);
+            renderAll();
+            toast("Duplicated ⎘");
+            return;
+          }
+
+          if(action === "copyAgent"){
+            try{
+              await navigator.clipboard.writeText(JSON.stringify(agent, null, 2));
+              toast("Agent JSON copied 📋");
+            }catch{
+              toast("Clipboard blocked ⚠️");
+            }
+            return;
+          }
+
+          if(action === "run"){
+            if(!agent.enabled){
+              toast("Agent is disabled 🛑");
+              return;
+            }
+            const inputEl = mainBodyEl.querySelector(`textarea[data-agent="${CSS.escape(id)}"][data-field="runInput"]`);
+            const input = (inputEl?.value || "").trim();
+            if(!input){
+              toast("Add run input first ✍️");
+              return;
+            }
+
+            const promptObj = (agent.defaultPromptId)
+              ? state.prompts.find(p=>p.id===agent.defaultPromptId)
+              : null;
+
+            const runId = cryptoId();
+            const start = performance.now();
+            const now = new Date().toISOString();
+
+            // SIMULATED OUTPUT (local mode)
+            // If endpoint is set, you can later replace this with fetch().
+            let output = "";
+            let status = "ok";
+            let endpointUsed = agent.endpoint || "";
+
+            try{
+              output = makeSimulatedOutput(agent, promptObj, input);
+            }catch(e){
+              status = "fail";
+              output = "Error generating output: " + (e?.message || String(e));
+            }
+            const dur = performance.now() - start;
+
+            state.runs.unshift({
+              id: runId,
+              time: now,
+              agentId: agent.id,
+              agentName: agent.name,
+              status,
+              durationMs: Math.round(dur),
+              input,
+              output,
+              endpointUsed
+            });
+            // keep last 200 runs
+            state.runs = state.runs.slice(0, 200);
+
+            state = saveState(state);
+            renderChrome();
+            toast("Run created 📡");
+            // jump to runs tab and show latest
+            activeTab = "runs";
+            renderTabs();
+            renderMain();
+          }
+        });
+      });
+    }
+
+    function makeSimulatedOutput(agent, promptObj, input){
+      const ptitle = promptObj?.title ? `Default Prompt: ${promptObj.title}` : "Default Prompt: (none)";
+      const lines = [];
+      lines.push(`# ${agent.name} — Output (Simulated Local Mode)`);
+      lines.push(`- ${ptitle}`);
+      lines.push(`- Mode: ${state.mode}`);
+      lines.push("");
+      lines.push("## Next steps");
+      lines.push("- Clarify acceptance criteria (success looks like…)");
+      lines.push("- Break down tasks into 3–7 steps");
+      lines.push("- Produce command-ready snippets / file-level edits");
+      lines.push("");
+      lines.push("## Input");
+      lines.push(input);
+      lines.push("");
+      lines.push("## Suggested actions");
+      lines.push("- Create a branch");
+      lines.push("- Implement minimal working slice");
+      lines.push("- Add a quick test/check");
+      lines.push("");
+      lines.push("## Snippets");
+      lines.push("```");
+      lines.push("# example");
+      lines.push("git checkout -b lab/feature");
+      lines.push("# edit files");
+      lines.push("git add . && git commit -m \"feat: add slice\"");
+      lines.push("```");
+      lines.push("");
+      lines.push("## Risks");
+      lines.push("- Scope creep → keep the first slice tiny");
+      lines.push("- Missing deps → pin versions and add notes");
+      return lines.join("\n");
+    }
+
+    /***********************
+     * TAB: PROMPTS
+     ***********************/
+    function renderPrompts(){
+      mainTitleEl.innerHTML = `🧾 Prompts <span class="pill">library + CRUD</span>`;
+      mainBodyEl.innerHTML = `
+        <div class="row" style="justify-content:space-between;align-items:flex-start;">
+          <div>
+            <p class="note">
+              Create reusable prompt templates. Copy them, assign as default for agents, and keep your lab consistent. ✨
+            </p>
+            <p class="hint">Right-click a prompt card to delete (or use the button).</p>
+          </div>
+          <div class="actions">
+            <button class="btn primary small" id="addPromptBtn">➕ New Prompt</button>
+            <button class="btn small" id="copyAllPromptsBtn">📋 Copy All (JSON)</button>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="split">
+          <div class="card" style="box-shadow:none;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)">
+            <div class="card-h">
+              <div class="title">✍️ Editor</div>
+              <span class="pill">select a prompt</span>
+            </div>
+            <div class="card-b" id="promptEditor"></div>
+          </div>
+
+          <div>
+            <div class="list" id="promptsList"></div>
+          </div>
+        </div>
+      `;
+
+      const editor = document.getElementById("promptEditor");
+      const list = document.getElementById("promptsList");
+
+      let selectedId = state.prompts?.[0]?.id || "";
+      if(!selectedId){
+        editor.innerHTML = `<p class="note">No prompts yet. Create one ➕</p>`;
+        list.innerHTML = "";
+        wirePromptButtons();
+        return;
+      }
+
+      const selectPrompt = (id)=>{
+        selectedId = id;
+        const p = state.prompts.find(x=>x.id===id);
+        if(!p){ editor.innerHTML = `<p class="note">Prompt not found.</p>`; return; }
+
+        editor.innerHTML = `
+          <label>Title</label>
+          <input id="pTitle" value="${escapeHtml(p.title)}" />
+          <label>Tags (comma-separated)</label>
+          <input id="pTags" value="${escapeHtml((p.tags||[]).join(", "))}" placeholder="dev, strategy, orchestrator" />
+          <label>Prompt Content</label>
+          <textarea id="pContent">${escapeHtml(p.content)}</textarea>
+          <div class="row">
+            <button class="btn primary small" id="savePromptBtn">💾 Save</button>
+            <button class="btn small" id="copyPromptBtn">📋 Copy</button>
+            <button class="btn danger small" id="delPromptBtn">🗑️ Delete</button>
+          </div>
+          <p class="hint">Tip: Assign this as an agent’s default prompt from the Agents tab.</p>
+        `;
+
+        document.getElementById("savePromptBtn").addEventListener("click", ()=>{
+          p.title = document.getElementById("pTitle").value.trim() || "Untitled";
+          p.tags = (document.getElementById("pTags").value || "")
+            .split(",").map(s=>s.trim()).filter(Boolean);
+          p.content = document.getElementById("pContent").value || "";
+          state = saveState(state);
+          renderAll();
+          toast("Prompt saved ✅");
+        });
+
+        document.getElementById("copyPromptBtn").addEventListener("click", async ()=>{
+          try{
+            await navigator.clipboard.writeText(p.content || "");
+            toast("Prompt copied 📋");
+          }catch{
+            toast("Clipboard blocked ⚠️");
+          }
+        });
+
+        document.getElementById("delPromptBtn").addEventListener("click", ()=>{
+          if(!confirm(`Delete prompt "${p.title}"?`)) return;
+          // remove prompt
+          state.prompts = state.prompts.filter(x=>x.id!==p.id);
+          // unassign from agents
+          state.agents.forEach(a=>{
+            if(a.defaultPromptId === p.id) a.defaultPromptId = "";
+          });
+          state = saveState(state);
+          renderAll();
+          toast("Prompt deleted 🗑️");
+        });
+      };
+
+      // list render
+      list.innerHTML = "";
+      (state.prompts || []).forEach(p=>{
+        const el = document.createElement("div");
+        el.className = "item";
+        el.innerHTML = `
+          <div class="left">
+            <div class="ico">🧾</div>
+            <div>
+              <h3>${escapeHtml(p.title)}</h3>
+              <p>${escapeHtml((p.tags||[]).length ? (p.tags||[]).join(" • ") : "No tags")}</p>
+              <div class="meta mono">${escapeHtml((p.content||"").slice(0, 120))}${(p.content||"").length>120?"…":""}</div>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn small" data-action="select" data-id="${escapeHtml(p.id)}">✍️ Edit</button>
+            <button class="btn small" data-action="copy" data-id="${escapeHtml(p.id)}">📋 Copy</button>
+          </div>
+        `;
+        el.addEventListener("contextmenu", (e)=>{
+          e.preventDefault();
+          if(confirm(`Delete prompt "${p.title}"?`)){
+            state.prompts = state.prompts.filter(x=>x.id!==p.id);
+            state.agents.forEach(a=>{ if(a.defaultPromptId === p.id) a.defaultPromptId = ""; });
+            state = saveState(state);
+            renderAll();
+            toast("Prompt deleted 🗑️");
+          }
+        });
+        list.appendChild(el);
+      });
+
+      // bind list actions
+      mainBodyEl.querySelectorAll("[data-action]").forEach(btn=>{
+        btn.addEventListener("click", async ()=>{
+          const action = btn.getAttribute("data-action");
+          const id = btn.getAttribute("data-id");
+          const p = state.prompts.find(x=>x.id===id);
+          if(!p) return;
+
+          if(action === "select") selectPrompt(id);
+          if(action === "copy"){
+            try{
+              await navigator.clipboard.writeText(p.content || "");
+              toast("Prompt copied 📋");
+            }catch{
+              toast("Clipboard blocked ⚠️");
+            }
+          }
+        });
+      });
+
+      wirePromptButtons();
+      selectPrompt(selectedId);
+
+      function wirePromptButtons(){
+        const addBtn = document.getElementById("addPromptBtn");
+        addBtn.addEventListener("click", ()=>{
+          const title = prompt("Prompt title?");
+          if(!title) return;
+          state.prompts.unshift({
+            id: cryptoId(),
+            title,
+            tags: [],
+            content: "Write your prompt here…"
+          });
+          state = saveState(state);
+          renderAll();
+          toast("Prompt created ➕");
+        });
+
+        const copyAllBtn = document.getElementById("copyAllPromptsBtn");
+        copyAllBtn.addEventListener("click", async ()=>{
+          try{
+            await navigator.clipboard.writeText(JSON.stringify(state.prompts || [], null, 2));
+            toast("All prompts copied 📋");
+          }catch{
+            toast("Clipboard blocked ⚠️");
+          }
+        });
+      }
+    }
+
+    /***********************
+     * TAB: RUNS & LOGS
+     ***********************/
+    function renderRuns(){
+      mainTitleEl.innerHTML = `📡 Runs & Logs <span class="pill">history</span>`;
+      const runs = state.runs || [];
+
+      mainBodyEl.innerHTML = `
+        <div class="row" style="justify-content:space-between;align-items:flex-start;">
+          <div>
+            <p class="note">
+              Every agent run is logged here with input/output. Export your logs any time.
+            </p>
+            <p class="hint">Tip: You can convert “Simulated Local Mode” to real execution by wiring agent endpoints.</p>
+          </div>
+          <div class="actions">
+            <button class="btn small" id="copyRunsBtn">📋 Copy Runs (JSON)</button>
+            <button class="btn small" id="clearRunsBtn">🧹 Clear</button>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="split">
+          <div>
+            <div class="list" id="runsList"></div>
+          </div>
+          <div class="card" style="box-shadow:none;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)">
+            <div class="card-h">
+              <div class="title">🧠 Run Viewer</div>
+              <span class="pill">select a run</span>
+            </div>
+            <div class="card-b" id="runViewer">
+              <p class="note">Select a run to view details.</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const list = document.getElementById("runsList");
+      const viewer = document.getElementById("runViewer");
+
+      const selectRun = (id)=>{
+        const r = state.runs.find(x=>x.id===id);
+        if(!r){ viewer.innerHTML = `<p class="note">Run not found.</p>`; return; }
+        const badge = r.status === "ok" ? "ok" : (r.status === "fail" ? "bad" : "warn");
+        viewer.innerHTML = `
+          <div class="row" style="justify-content:space-between;margin-top:0;">
+            <div>
+              <div class="row" style="margin-top:0;">
+                <span class="badge ${badge}">${escapeHtml(r.status || "ok")}</span>
+                <span class="badge">${escapeHtml(r.agentName || "")}</span>
+                <span class="badge">${escapeHtml(msToHuman(r.durationMs))}</span>
+              </div>
+              <div class="note" style="margin-top:8px;">
+                <span class="mono">${escapeHtml(fmtTime(r.time))}</span>
+                ${r.endpointUsed ? ` <span class="sep">•</span> endpoint: <span class="mono">${escapeHtml(r.endpointUsed)}</span>` : ""}
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn small" id="copyRunBtn">📋 Copy Output</button>
+              <button class="btn danger small" id="delRunBtn">🗑️ Delete</button>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <label>Input</label>
+          <div class="codebox">${escapeHtml(r.input || "")}</div>
+
+          <label>Output</label>
+          <div class="codebox">${escapeHtml(r.output || "")}</div>
+        `;
+
+        document.getElementById("copyRunBtn").addEventListener("click", async ()=>{
+          try{
+            await navigator.clipboard.writeText(r.output || "");
+            toast("Output copied 📋");
+          }catch{
+            toast("Clipboard blocked ⚠️");
+          }
+        });
+
+        document.getElementById("delRunBtn").addEventListener("click", ()=>{
+          if(!confirm("Delete this run?")) return;
+          state.runs = state.runs.filter(x=>x.id!==r.id);
+          state = saveState(state);
+          renderAll();
+          toast("Run deleted 🗑️");
+        });
+      };
+
+      list.innerHTML = "";
+      if(!runs.length){
+        list.innerHTML = `<p class="note">No runs yet. Go to Agents tab and press Run ▶</p>`;
+      } else {
+        runs.slice(0, 40).forEach(r=>{
+          const badge = r.status === "ok" ? "ok" : (r.status === "fail" ? "bad" : "warn");
+          const el = document.createElement("div");
+          el.className = "item";
+          el.innerHTML = `
+            <div class="left">
+              <div class="ico">📡</div>
+              <div>
+                <h3>${escapeHtml(r.agentName || "Agent")} <span class="badge ${badge}">${escapeHtml(r.status || "ok")}</span></h3>
+                <p>${escapeHtml((r.input||"").slice(0, 120))}${(r.input||"").length>120?"…":""}</p>
+                <div class="meta mono">${escapeHtml(fmtTime(r.time))} <span class="sep">•</span> ${escapeHtml(msToHuman(r.durationMs))}</div>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn small" data-action="view" data-id="${escapeHtml(r.id)}">👁️ View</button>
+            </div>
+          `;
+          list.appendChild(el);
+        });
+
+        // auto-select latest
+        selectRun(runs[0].id);
+      }
+
+      mainBodyEl.querySelectorAll('[data-action="view"]').forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          selectRun(btn.getAttribute("data-id"));
+        });
+      });
+
+      document.getElementById("copyRunsBtn").addEventListener("click", async ()=>{
+        try{
+          await navigator.clipboard.writeText(JSON.stringify(state.runs || [], null, 2));
+          toast("Runs copied 📋");
+        }catch{
+          toast("Clipboard blocked ⚠️");
+        }
+      });
+
+      document.getElementById("clearRunsBtn").addEventListener("click", ()=>{
+        if(!confirm("Clear all runs?")) return;
+        state.runs = [];
+        state = saveState(state);
+        renderAll();
+        toast("Runs cleared 🧹");
+      });
+    }
+
+    /***********************
+     * TAB: DEPLOY
+     ***********************/
+    function renderDeploy(){
+      mainTitleEl.innerHTML = `🚀 Deploy <span class="pill">Pages + Vercel</span>`;
+      const dep = state.deploy || structuredCloneSafe(defaults.deploy);
+
+      mainBodyEl.innerHTML = `
+        <div class="split">
+          <div>
+            <div class="card" style="box-shadow:none;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)">
+              <div class="card-h">
+                <div class="title">🌐 GitHub Pages (this cockpit)</div>
+                <span class="pill">recommended</span>
+              </div>
+              <div class="card-b">
+                <p class="note">
+                  Put this file at <b>docs/index.html</b> and enable Pages: Settings → Pages → Branch <b>main</b> → Folder <b>/docs</b>.
+                </p>
+                <div class="hr"></div>
+                <div class="codebox">1) Create docs/index.html
+2) Repo → Settings → Pages
+3) Source: Deploy from a branch
+4) Branch: main
+5) Folder: /docs
+6) Save
+7) Your cockpit URL becomes:
+   https://&lt;username&gt;.github.io/&lt;repo&gt;/</div>
+
+                <div class="row">
+                  <button class="btn small" id="openPagesSettings">⚙️ Open Pages Settings</button>
+                  <button class="btn small" id="openPagesUrl">🌐 Open Pages URL</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="card" style="box-shadow:none;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)">
+              <div class="card-h">
+                <div class="title">▲ Vercel Deploy Checklist</div>
+                <span class="pill">when ready</span>
+              </div>
+              <div class="card-b">
+                <label>Production URL (optional)</label>
+                <input id="prodUrl" placeholder="https://yourapp.vercel.app" value="${escapeHtml(dep.productionUrl || "")}" />
+
+                <label>Vercel project/dashboard URL</label>
+                <input id="vercelUrl" placeholder="https://vercel.com/..." value="${escapeHtml(dep.vercelProjectUrl || "")}" />
+
+                <div class="hr"></div>
+
+                <div class="codebox">✅ Minimal deploy flow:
+- Push to GitHub (main)
+- Import project in Vercel
+- Set Environment Variables (below)
+- Deploy
+- Add custom domain (optional)
+- Add logs/alerts (optional)</div>
+
+                <div class="row">
+                  <button class="btn small" id="openVercel">▲ Open Vercel</button>
+                  <button class="btn small" id="saveDeploy">💾 Save Deploy</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card" style="box-shadow:none;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)">
+              <div class="card-h">
+                <div class="title">🔐 Env Vault (local convenience)</div>
+                <span class="pill">store on Vercel ideally</span>
+              </div>
+              <div class="card-b">
+                <p class="note">
+                  This is local-only and <b>not secure storage</b>. Use it as a scratchpad.
+                  Real secrets should go in Vercel env vars.
+                </p>
+                <div class="hr"></div>
+                <div class="list" id="envList"></div>
+
+                <div class="row">
+                  <button class="btn primary small" id="addEnv">➕ Add Env</button>
+                  <button class="btn small" id="copyEnv">📋 Copy Env (.env)</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // buttons
+      document.getElementById("openPagesSettings").addEventListener("click", ()=>{
+        // best-effort guess: repo settings page
+        const repo = state.primaryUrl || "";
+        if(repo.includes("github.com/")){
+          safeOpen(repo.replace("github.com/", "github.com/") + "/settings/pages");
+        }else{
+          toast("Set Primary URL to your repo first 🔗");
+        }
+      });
+
+      document.getElementById("openPagesUrl").addEventListener("click", ()=>{
+        // try find any pages link from links list
+        const pages = (state.links || []).find(l => (l.url || "").includes(".github.io/"));
+        if(pages) safeOpen(pages.url);
+        else toast("Add your Pages URL under Links 🔗");
+      });
+
+      document.getElementById("openVercel").addEventListener("click", ()=> safeOpen(document.getElementById("vercelUrl").value.trim() || "https://vercel.com/dashboard"));
+
+      document.getElementById("saveDeploy").addEventListener("click", ()=>{
+        state.deploy.productionUrl = document.getElementById("prodUrl").value.trim();
+        state.deploy.vercelProjectUrl = document.getElementById("vercelUrl").value.trim() || "https://vercel.com/dashboard";
+        state = saveState(state);
+        renderChrome();
+        toast("Deploy settings saved ✅");
+      });
+
+      // env list render
+      const envList = document.getElementById("envList");
+      envList.innerHTML = "";
+      (state.deploy.env || []).forEach((e, idx)=>{
+        const el = document.createElement("div");
+        el.className = "item";
+        el.innerHTML = `
+          <div class="left">
+            <div class="ico">🔑</div>
+            <div style="width:100%;">
+              <h3 class="mono">${escapeHtml(e.key || "KEY")}</h3>
+              <p>${escapeHtml(e.note || "")}</p>
+              <label>Value</label>
+              <input data-env="${idx}" placeholder="value" value="${escapeHtml(e.value || "")}" />
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn small" data-action="copyOne" data-env="${idx}">📋</button>
+            <button class="btn danger small" data-action="delOne" data-env="${idx}">🗑️</button>
+          </div>
+        `;
+        envList.appendChild(el);
+      });
+
+      // env edit
+      envList.querySelectorAll("input[data-env]").forEach(inp=>{
+        inp.addEventListener("change", ()=>{
+          const idx = Number(inp.getAttribute("data-env"));
+          state.deploy.env[idx].value = inp.value;
+          state = saveState(state);
+          renderChrome();
+          toast("Env updated ✅");
+        });
+      });
+
+      envList.querySelectorAll("[data-action]").forEach(btn=>{
+        btn.addEventListener("click", async ()=>{
+          const action = btn.getAttribute("data-action");
+          const idx = Number(btn.getAttribute("data-env"));
+          const item = state.deploy.env[idx];
+          if(!item) return;
+
+          if(action === "delOne"){
+            if(!confirm(`Delete env "${item.key}"?`)) return;
+            state.deploy.env.splice(idx, 1);
+            state = saveState(state);
+            renderAll();
+            toast("Env deleted 🗑️");
+            return;
+          }
+
+          if(action === "copyOne"){
+            try{
+              await navigator.clipboard.writeText(`${item.key}=${item.value || ""}`);
+              toast("Copied 📋");
+            }catch{
+              toast("Clipboard blocked ⚠️");
+            }
+          }
+        });
+      });
+
+      document.getElementById("addEnv").addEventListener("click", ()=>{
+        const key = prompt("Env key? (e.g., OPENAI_API_KEY)");
+        if(!key) return;
+        const note = prompt("Note (optional):", "") || "";
+        state.deploy.env.unshift({ key, value:"", note });
+        state = saveState(state);
+        renderAll();
+        toast("Env added ➕");
+      });
+
+      document.getElementById("copyEnv").addEventListener("click", async ()=>{
+        const lines = (state.deploy.env || []).map(x => `${x.key}=${x.value || ""}`);
+        try{
+          await navigator.clipboard.writeText(lines.join("\n"));
+          toast(".env copied 📋");
+        }catch{
+          toast("Clipboard blocked ⚠️");
+        }
+      });
+    }
+
+    /***********************
+     * TAB: LINKS
+     ***********************/
+    function renderLinks(){
+      mainTitleEl.innerHTML = `🔗 Links <span class="pill">launchers</span>`;
+      mainBodyEl.innerHTML = `
+        <div class="row" style="justify-content:space-between;align-items:flex-start;">
+          <div>
+            <p class="note">
+              Your daily launchers. Right-click a link card to remove it.
+            </p>
+          </div>
+          <div class="actions">
+            <button class="btn primary small" id="addLinkBtn">➕ Add Link</button>
+            <button class="btn small" id="openAllLinksBtn">🧭 Open All</button>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="list" id="linksList"></div>
+      `;
+
+      const list = document.getElementById("linksList");
+      list.innerHTML = "";
+
+      (state.links || []).forEach((l, idx)=>{
+        const el = document.createElement("div");
+        el.className = "item";
+        el.innerHTML = `
+          <a class="link left" href="${escapeHtml(l.url)}" target="_blank" rel="noopener noreferrer">
+            <div class="ico">${escapeHtml(l.icon || "🔗")}</div>
+            <div>
+              <h3>${escapeHtml(l.title || "Untitled")}</h3>
+              <p>${escapeHtml(l.desc || "")}</p>
+              <div class="meta mono">${escapeHtml(l.url || "")}</div>
+            </div>
+          </a>
+          <div class="actions">
+            <button class="btn small" data-action="copy" data-idx="${idx}">📋</button>
+            <button class="btn danger small" data-action="del" data-idx="${idx}">🗑️</button>
+          </div>
+        `;
+        el.addEventListener("contextmenu", (e)=>{
+          e.preventDefault();
+          if(confirm(`Remove link "${l.title}"?`)){
+            state.links.splice(idx, 1);
+            state = saveState(state);
+            renderAll();
+            toast("Link removed 🗑️");
+          }
+        });
+        list.appendChild(el);
+      });
+
+      document.getElementById("addLinkBtn").addEventListener("click", ()=>{
+        const title = prompt("Link title?");
+        if(!title) return;
+        const url = prompt("URL (https://...)?");
+        if(!url) return;
+        const desc = prompt("Description (optional):", "") || "";
+        const icon = prompt("Icon emoji (optional):", "🔗") || "🔗";
+        state.links.unshift({ title, url, desc, icon });
+        state = saveState(state);
+        renderAll();
+        toast("Link added ➕");
+      });
+
+      document.getElementById("openAllLinksBtn").addEventListener("click", ()=>{
+        (state.links || []).forEach(l=> safeOpen(l.url));
+        toast("Opened all 🧭");
+      });
+
+      mainBodyEl.querySelectorAll("[data-action]").forEach(btn=>{
+        btn.addEventListener("click", async ()=>{
+          const action = btn.getAttribute("data-action");
+          const idx = Number(btn.getAttribute("data-idx"));
+          const l = state.links[idx];
+          if(!l) return;
+
+          if(action === "del"){
+            if(!confirm(`Remove link "${l.title}"?`)) return;
+            state.links.splice(idx, 1);
+            state = saveState(state);
+            renderAll();
+            toast("Link removed 🗑️");
+          }
+
+          if(action === "copy"){
+            try{
+              await navigator.clipboard.writeText(l.url || "");
+              toast("URL copied 📋");
+            }catch{
+              toast("Clipboard blocked ⚠️");
+            }
+          }
+        });
+      });
+    }
+
+    /***********************
+     * FULL RENDER
+     ***********************/
+    function renderAll(){
+      renderChrome();
+      renderTabs();
+      renderMain();
+    }
+
+    // init
+    renderAll();
+  </script>
+</body>
+</html>    }
 
     .wrap{
       max-width: 1100px;
