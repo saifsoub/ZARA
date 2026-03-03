@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Personal AI Lab — Control Panel</title>
+  <meta name="description" content="Personal AI Lab launcher and control panel." />
+  <style>
+    :root{
+      --bg: #050913;
+      --panel: rgba(255,255,255,.06);
+      --panel2: rgba(255,255,255,.10);
+      --border: rgba(255,255,255,.10);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.65);
+      --accent: #EB5815; /* signal orange */
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+      --radius: 18px;
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(1200px 700px at 15% 10%, rgba(235,88,21,.18), transparent 45%),
+        radial-gradient(900px 600px at 85% 20%, rgba(56,189,248,.10), transparent 55%),
+        radial-gradient(1200px 900px at 50% 90%, rgba(99,102,241,.08), transparent 55%),
+        var(--bg);
+      min-height:100vh;
+    }
+
+    .wrap{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 18px 42px;
+    }
+
+    header{
+      display:flex;
+      gap:16px;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom: 18px;
+    }
+
+    .brand{
+      display:flex;
+      gap:14px;
+      align-items:center;
+    }
+
+    .logo{
+      width: 42px; height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(235,88,21,.95), rgba(235,88,21,.15));
+      box-shadow: 0 18px 45px rgba(235,88,21,.20);
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    h1{
+      font-size: 18px;
+      margin:0;
+      letter-spacing: .2px;
+    }
+    .sub{
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .top-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .btn{
+      appearance:none;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-size: 13px;
+      cursor:pointer;
+      transition: transform .08s ease, background .15s ease, border .15s ease;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      box-shadow: 0 8px 26px rgba(0,0,0,.25);
+    }
+    .btn:hover{ background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.18);}
+    .btn:active{ transform: translateY(1px); }
+    .btn.primary{
+      background: rgba(235,88,21,.18);
+      border-color: rgba(235,88,21,.35);
+    }
+    .btn.primary:hover{ background: rgba(235,88,21,.24); }
+    .btn.danger{
+      background: rgba(239,68,68,.12);
+      border-color: rgba(239,68,68,.25);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:14px;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 920px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .card-h{
+      padding: 14px 14px 10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), transparent);
+    }
+
+    .card-h .title{
+      font-size: 13px;
+      letter-spacing: .3px;
+      color: rgba(255,255,255,.86);
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .pill{
+      font-size: 12px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.75);
+    }
+
+    .card-b{ padding: 14px; }
+
+    .links{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 10px;
+    }
+    @media (max-width: 560px){
+      .links{ grid-template-columns: 1fr; }
+    }
+
+    .link{
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      text-decoration:none;
+      color: var(--text);
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      transition: background .15s ease, border .15s ease;
+    }
+    .link:hover{
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.16);
+    }
+    .ico{
+      width: 30px; height: 30px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      display:grid;
+      place-items:center;
+      flex: 0 0 auto;
+      margin-top: 1px;
+    }
+    .link .t{ font-size: 13px; margin:0 0 4px; }
+    .link .d{ margin:0; font-size: 12px; color: var(--muted); line-height: 1.35; }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top: 10px;
+    }
+
+    label{
+      display:block;
+      font-size: 12px;
+      color: rgba(255,255,255,.72);
+      margin: 12px 0 6px;
+    }
+    input, textarea, select{
+      width:100%;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+      padding: 10px 12px;
+      font-size: 13px;
+      outline:none;
+    }
+    textarea{ min-height: 96px; resize: vertical; font-family: var(--mono); font-size: 12px; }
+    input::placeholder, textarea::placeholder{ color: rgba(255,255,255,.42); }
+
+    .kpi{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    @media (max-width: 560px){
+      .kpi{ grid-template-columns: 1fr; }
+    }
+    .k{
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+    }
+    .k .n{ font-size: 20px; margin: 0 0 4px; }
+    .k .l{ font-size: 12px; color: var(--muted); margin:0; }
+
+    .note{
+      font-size: 12px;
+      color: rgba(255,255,255,.68);
+      line-height: 1.5;
+    }
+
+    .mono{ font-family: var(--mono); }
+    .toast{
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+      color: rgba(255,255,255,.88);
+      font-size: 13px;
+      box-shadow: 0 18px 55px rgba(0,0,0,.5);
+      opacity:0;
+      transform: translateY(10px);
+      transition: opacity .18s ease, transform .18s ease;
+      pointer-events:none;
+    }
+    .toast.show{ opacity:1; transform: translateY(0); }
+    footer{
+      margin-top: 14px;
+      color: rgba(255,255,255,.45);
+      font-size: 12px;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .sep{ opacity:.35; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Personal AI Lab — Control Panel</h1>
+          <p class="sub">A lightweight cockpit for your tools, repos, prompts, and quick actions.</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn primary" id="openPrimary">🚀 Open Primary</button>
+        <button class="btn" id="copyQuick">📋 Copy Quick Prompt</button>
+        <button class="btn danger" id="reset">♻️ Reset</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- LEFT: Launcher -->
+      <section class="card">
+        <div class="card-h">
+          <div class="title">🔗 Launchers <span class="pill">click to open</span></div>
+          <span class="pill mono" id="today"></span>
+        </div>
+        <div class="card-b">
+          <div class="links" id="links"></div>
+
+          <div class="row" style="margin-top:12px;">
+            <button class="btn" id="openAll">🧭 Open All (new tabs)</button>
+            <button class="btn" id="export">⬇️ Export Settings</button>
+            <button class="btn" id="importBtn">⬆️ Import Settings</button>
+            <input id="importFile" type="file" accept="application/json" style="display:none;" />
+          </div>
+
+          <p class="note" style="margin-top:10px;">
+            Tip: Put your deployed app URL (Vercel), your main repo, and anything you use daily. This page will remember your configuration locally on your device. ✅
+          </p>
+        </div>
+      </section>
+
+      <!-- RIGHT: Config + Quick prompt -->
+      <aside class="card">
+        <div class="card-h">
+          <div class="title">⚙️ Config & Quick Prompt <span class="pill">saved locally</span></div>
+        </div>
+        <div class="card-b">
+          <div class="kpi">
+            <div class="k">
+              <p class="n" id="kLinks">0</p>
+              <p class="l">Launchers</p>
+            </div>
+            <div class="k">
+              <p class="n" id="kLast">—</p>
+              <p class="l">Last saved</p>
+            </div>
+            <div class="k">
+              <p class="n" id="kMode">LAB</p>
+              <p class="l">Mode</p>
+            </div>
+          </div>
+
+          <label for="primaryUrl">Primary URL (what “Open Primary” launches)</label>
+          <input id="primaryUrl" placeholder="https://github.com/saifsoub/future-tax-innovator" />
+
+          <label for="labMode">Lab Mode</label>
+          <select id="labMode">
+            <option value="LAB">LAB</option>
+            <option value="BUILD">BUILD</option>
+            <option value="RESEARCH">RESEARCH</option>
+            <option value="DEPLOY">DEPLOY</option>
+          </select>
+
+          <label for="quickPrompt">Quick Prompt (copied by one click)</label>
+          <textarea id="quickPrompt" placeholder="Write your default system prompt / instruction set here..."></textarea>
+
+          <div class="row">
+            <button class="btn primary" id="save">💾 Save</button>
+            <button class="btn" id="addLink">➕ Add Launcher</button>
+          </div>
+
+          <p class="note" style="margin-top:10px;">
+            This is intentionally minimal. If you want, I can upgrade it to a full **multi-agent dashboard** (cards for agents, status, logs, run buttons, prompt templates, API keys vault, etc.). 😈✨
+          </p>
+        </div>
+      </aside>
+    </div>
+
+    <footer>
+      <div>Made for your Personal AI Lab 🧠⚡</div>
+      <div><span class="sep">•</span> Local-only storage (no server) <span class="sep">•</span> Single file</div>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = "personal_ai_lab_v1";
+
+    const defaults = {
+      primaryUrl: "https://github.com/saifsoub/future-tax-innovator",
+      mode: "LAB",
+      quickPrompt:
+`You are my Personal AI Lab Orchestrator.
+Rules:
+- Be fast, structured, and execution-ready.
+- Provide direct actions, not theory.
+- Always ask for the single missing input only if absolutely required.
+Output:
+- Next steps
+- Command-ready snippets
+- Checklists`,
+      links: [
+        { title: "GitHub Repo", url: "https://github.com/saifsoub/future-tax-innovator", desc: "Main lab repository (code + docs).", icon: "🐙" },
+        { title: "Copilot Agents", url: "https://github.com/saifsoub/future-tax-innovator/tree/main/.github/agents", desc: "Agent configs inside the repo.", icon: "🤖" },
+        { title: "GitHub Pages (if enabled)", url: "https://saifsoub.github.io/future-tax-innovator/", desc: "Public launcher endpoint.", icon: "🌐" },
+        { title: "Vercel Dashboard", url: "https://vercel.com/dashboard", desc: "Deploy / env vars / logs.", icon: "▲" }
+      ],
+      lastSaved: null
+    };
+
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return structuredClone(defaults);
+        const state = JSON.parse(raw);
+        return { ...structuredClone(defaults), ...state };
+      }catch{
+        return structuredClone(defaults);
+      }
+    }
+
+    function saveState(state){
+      state.lastSaved = new Date().toISOString();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      return state;
+    }
+
+    function toast(msg){
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      setTimeout(()=> el.classList.remove("show"), 1600);
+    }
+
+    function safeOpen(url){
+      if(!url) return;
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+
+    // DOM
+    const linksEl = document.getElementById("links");
+    const todayEl = document.getElementById("today");
+    const primaryUrlEl = document.getElementById("primaryUrl");
+    const labModeEl = document.getElementById("labMode");
+    const quickPromptEl = document.getElementById("quickPrompt");
+    const kLinksEl = document.getElementById("kLinks");
+    const kLastEl = document.getElementById("kLast");
+    const kModeEl = document.getElementById("kMode");
+
+    let state = loadState();
+
+    function render(){
+      // header date
+      const d = new Date();
+      todayEl.textContent = d.toLocaleString(undefined, { weekday:"short", year:"numeric", month:"short", day:"numeric" });
+
+      // config
+      primaryUrlEl.value = state.primaryUrl || "";
+      labModeEl.value = state.mode || "LAB";
+      quickPromptEl.value = state.quickPrompt || "";
+
+      // kpis
+      kLinksEl.textContent = (state.links || []).length;
+      kModeEl.textContent = state.mode || "LAB";
+      kLastEl.textContent = state.lastSaved ? new Date(state.lastSaved).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}) : "—";
+
+      // links
+      linksEl.innerHTML = "";
+      (state.links || []).forEach((l, idx) => {
+        const a = document.createElement("a");
+        a.className = "link";
+        a.href = l.url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.innerHTML = `
+          <div class="ico" aria-hidden="true">${(l.icon || "🔗")}</div>
+          <div>
+            <p class="t">${escapeHtml(l.title || "Untitled")}</p>
+            <p class="d">${escapeHtml(l.desc || l.url || "")}</p>
+            <p class="d mono" style="margin-top:6px; opacity:.55;">${escapeHtml(l.url || "")}</p>
+          </div>
+        `;
+        a.addEventListener("contextmenu", (e) => {
+          e.preventDefault();
+          if(confirm(`Remove launcher: "${l.title}"?`)){
+            state.links.splice(idx, 1);
+            state = saveState(state);
+            render();
+            toast("Launcher removed");
+          }
+        });
+        linksEl.appendChild(a);
+      });
+    }
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    // Actions
+    document.getElementById("openPrimary").addEventListener("click", () => {
+      safeOpen(state.primaryUrl);
+    });
+
+    document.getElementById("copyQuick").addEventListener("click", async () => {
+      try{
+        await navigator.clipboard.writeText(quickPromptEl.value || "");
+        toast("Quick prompt copied ✅");
+      }catch{
+        toast("Clipboard blocked (try HTTPS) ⚠️");
+      }
+    });
+
+    document.getElementById("save").addEventListener("click", () => {
+      state.primaryUrl = primaryUrlEl.value.trim();
+      state.mode = labModeEl.value;
+      state.quickPrompt = quickPromptEl.value;
+      state = saveState(state);
+      render();
+      toast("Saved ✅");
+    });
+
+    document.getElementById("reset").addEventListener("click", () => {
+      if(!confirm("Reset to defaults? This clears your saved local config.")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      state = loadState();
+      render();
+      toast("Reset done ♻️");
+    });
+
+    document.getElementById("openAll").addEventListener("click", () => {
+      (state.links || []).forEach(l => safeOpen(l.url));
+      toast("Opened all launchers 🧭");
+    });
+
+    document.getElementById("addLink").addEventListener("click", () => {
+      const title = prompt("Launcher title?");
+      if(!title) return;
+      const url = prompt("Launcher URL (https://...) ?");
+      if(!url) return;
+      const desc = prompt("Short description (optional):") || "";
+      const icon = prompt("Icon emoji (optional):", "🔗") || "🔗";
+      state.links = state.links || [];
+      state.links.unshift({ title, url, desc, icon });
+      state = saveState(state);
+      render();
+      toast("Launcher added ➕");
+    });
+
+    // Export / Import
+    document.getElementById("export").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "personal-ai-lab-settings.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast("Exported ⬇️");
+    });
+
+    document.getElementById("importBtn").addEventListener("click", () => {
+      document.getElementById("importFile").click();
+    });
+
+    document.getElementById("importFile").addEventListener("change", async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if(!file) return;
+      try{
+        const txt = await file.text();
+        const incoming = JSON.parse(txt);
+        state = saveState({ ...structuredClone(defaults), ...incoming });
+        render();
+        toast("Imported ⬆️");
+      }catch{
+        toast("Import failed ⚠️");
+      }finally{
+        e.target.value = "";
+      }
+    });
+
+    // init
+    render();
+  </script>
+</body>
+</html>
